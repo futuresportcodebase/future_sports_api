@@ -11,9 +11,6 @@ def select_image():
     return file_path
 
 
-from PIL import Image, ImageDraw, ImageFont
-
-
 def merge_images_with_text(image1_path, image2_path, text="TEXT", font_path="Fjord_Regular.ttf", font_size=40,
                            text_color=(1, 5, 28)):
     # Open your images
