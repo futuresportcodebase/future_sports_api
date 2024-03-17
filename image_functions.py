@@ -63,7 +63,7 @@ if __name__ == "__main__":
     image1_path = "test_images/prior_images/card-bg-7.jpg"
     image2_path = "test_images/prior_images/golden-monke.png"
     text = "TEXT"
-    font_path = "Fjord_Regular.ttf"
+    font_path = "app/api/api_v0/assets/Fjord_Regular.ttf"
     font_size = 40
     text_color = (1, 5, 28)
 
