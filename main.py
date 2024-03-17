@@ -52,29 +52,41 @@ def merge_images(image1_path: str, image2_path: str, text: str = "TEXT"):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def merge_images_with_text(image, text="TEXT", font_path="Fjord_Regular.ttf", font_size=70, text_color=(1, 5, 28)):
+def merge_images_with_text(image, text="TEXT", header_text="HEADER", font_path="Minercraftory.ttf", font_size=50, header_font_size=40,
+                           text_color=(1, 8, 33), header_color=(250, 221, 177)):
     # Add text at the bottom
     draw = ImageDraw.Draw(image)
 
     # Load font
     try:
         font = ImageFont.truetype(font_path, font_size)
+        header_font = ImageFont.truetype(font_path, header_font_size)
     except IOError:
         print("Font not found, using default font.")
         font = ImageFont.load_default()
+        header_font = ImageFont.load_default()
 
-    # Estimate the text width (assuming average character width around half the font size)
-    average_char_width = font_size * 0.6
-    estimated_text_width = len(text) * average_char_width
+    # Calculate text size
+    text_width, text_height = draw.textsize(text, font=font)
+    header_text_width, header_text_height = draw.textsize(header_text, font=header_font)
 
     # Center the text horizontally
     width, height = image.size
-    text_position = ((width - estimated_text_width) // 2, height - 160)  # Keep vertical position
+    text_position = ((width - text_width) // 2, height - 153)  # Adjust vertical position as needed
 
     # Draw the text in specified color
     draw.text(text_position, text, fill=text_color, font=font)
 
+    # Position the header text at the top
+    header_text_position = ((width - header_text_width) // 2, 140)  # Adjust vertical position as needed
+
+    # Draw the header text in specified color
+    draw.text(header_text_position, header_text, fill=header_color, font=header_font)
+
     return image
+
+
+
 
 
 def upload_to_s3(image_data: bytes, filename: str):
