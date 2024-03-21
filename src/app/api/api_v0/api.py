@@ -21,7 +21,7 @@ router.include_router(items.router)
 router.include_router(users.router)
 
 import boto3
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from .config import *

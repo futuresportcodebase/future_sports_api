@@ -64,3 +64,10 @@ To tear down all the resources used to run the API service, use the following sc
 ```
 IMAGE=fastapi ENV=stage ./scripts/teardown.sh
 ```
+
+docker tag future_sports_api:latest 905418462229.dkr.ecr.us-east-1.amazonaws.com/futuresportsapi:latest
+
+docker push 905418462229.dkr.ecr.us-east-1.amazonaws.com/futuresportsapi:latest
+
+
+

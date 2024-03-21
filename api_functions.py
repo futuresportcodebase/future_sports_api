@@ -1,14 +1,25 @@
 import requests
-from PIL import Image
-from io import BytesIO
 
-def download_image_from_url(url):
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return Image.open(BytesIO(response.content))
-        else:
-            return None
-    except Exception as e:
-        print(f"Error downloading image from {url}: {e}")
-        return None
+SOLANA_ENDPOINT = 'https://api.devnet.solana.com'
+SOL_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+SOL_WALLET = 'AZwvt68TJMVy2v9BEBob1LLkXurcVdxYLKaqpvTo2MYg'
+
+payload = {
+    'jsonrpc': '2.0',
+    'id': 1,
+    'method': 'getTokenAccountsByOwner',
+    'params': [
+        SOL_WALLET,
+        {
+            'programId': SOL_PROGRAM_ID
+        },
+        {
+            'encoding': 'jsonParsed'
+        }
+    ]
+}
+
+response = requests.post(SOLANA_ENDPOINT, json=payload)
+response_json = response.json()
+
+print(response_json)
