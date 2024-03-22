@@ -80,7 +80,7 @@ def merge_images(image1_path: str, image2_path: str,header_text="HEADER", text: 
 
 
 def merge_images_with_text(image, header_text="HEADER", text="TEXT", font_path="api/api_v0/assets/Minercraftory.ttf", font_size=50, header_font_size=40,
-                           text_color=(1, 8, 33), header_color=(250, 221, 177)):
+                           text_color=(1, 8, 33), header_color=(250, 221, 177), text_vertical_position=1100, header_vertical_position=140):
     # Add text at the bottom
     draw = ImageDraw.Draw(image)
 
@@ -99,16 +99,16 @@ def merge_images_with_text(image, header_text="HEADER", text="TEXT", font_path="
 
     # Center the text horizontally
     width, height = image.size
-    text_position = ((width - text_width) // 2, height - 153)  # Adjust vertical position as needed
+    text_position = ((width - text_width) // 2, text_vertical_position)  # Adjust vertical position as needed
 
     # Draw the text in specified color
     draw.text(text_position, text, fill=text_color, font=font)
 
     # Position the header text at the top
-    header_text_position = ((width - header_text_width) // 2, 140)  # Adjust vertical position as needed
+    header_vertical_position = ((width - header_text_width) // 2, header_vertical_position)  # Adjust vertical position as needed
 
     # Draw the header text in specified color
-    draw.text(header_text_position, header_text, fill=header_color, font=header_font)
+    draw.text(header_vertical_position, header_text, fill=header_color, font=header_font)
 
     return image
 
