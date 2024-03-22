@@ -1,17 +1,8 @@
-import requests
-import base58
-import requests
 import json
-from solana.rpc.api import Client, Pubkey
 
+import requests
+from ..config import SOLANA_ENDPOINT, SOL_PROGRAM_ID, HELIUS_URL
 
-# SOLANA_ENDPOINT = 'https://api.devnet.solana.com'
-SOLANA_ENDPOINT = 'https://api.mainnet-beta.solana.com'
-SOL_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-
-
-# Initialize the Solana client (assuming mainnet)
-client = Client("https://api.mainnet-beta.solana.com")
 
 def send_solana_request(payload):
     """
@@ -36,7 +27,7 @@ def check_wallet_owns_nft(wallet_address, nft_mint_address):
         ]
     }
     response_json = send_solana_request(payload)
-    print(response_json)
+
     # Check if the wallet owns the NFT
     if response_json['result']['value']:
         print("The wallet owns the NFT.")
@@ -65,7 +56,7 @@ def get_all_token_accounts(wallet_address):
     return response_json
 
 
-def get_asset(mint_address, id):
+def fetch_asset(mint_address, id):
     url = HELIUS_URL  # Replace YOUR_URL_HERE with the actual URL you are making the request to.
     headers = {
         'Content-Type': 'application/json',
@@ -81,10 +72,11 @@ def get_asset(mint_address, id):
 
     response = requests.post(url, json=payload, headers=headers)
     result = response.json().get('result')
-    print("Asset: ", result)
+    # print("Asset: ", result)
     return result
 
-def get_assets_by_owner(wallet_address):
+
+def fetch_assets_by_owner(wallet_address):
     url = HELIUS_URL
     headers = {
         'Content-Type': 'application/json',
@@ -104,16 +96,17 @@ def get_assets_by_owner(wallet_address):
     result = response.json().get('result', {})
     items = result.get('items', [])
 
-    print("Assets by Owner: ", items)
+    # print("Assets by Owner: ", items)
     return items
 
+
 def filter_assets_by_interface(wallet_address, interface_filter='V1_NFT'):
-    assets = get_assets_by_owner(wallet_address)
+    assets = fetch_assets_by_owner(wallet_address)
     filtered_assets = [asset for asset in assets if asset.get('interface') == interface_filter]
 
-    # Print or process the filtered assets as needed
-    for asset in filtered_assets:
-        print("Filtered Asset: ", asset)
+    # # Print or process the filtered assets as needed
+    # for asset in filtered_assets:
+    #     print("Filtered Asset: ", asset)
 
     return filtered_assets
 
@@ -137,28 +130,10 @@ def extract_image_links(filtered_assets):
 
     return image_links
 
-def get_assets_images_by_wallet_address(wallet_address, interface_filter='V1_NFT'):
+
+def fetch_assets_images_by_wallet_address(wallet_address, interface_filter='V1_NFT'):
     filtered_assets = filter_assets_by_interface(wallet_address, interface_filter)
     image_links = extract_image_links(filtered_assets)
     for link in image_links:
         print("Image URL:", link)
     return image_links
-
-
-if __name__ == '__main__':
-    # Example usage
-    SOL_WALLET = 'AZwvt68TJMVy2v9BEBob1LLkXurcVdxYLKaqpvTo2MYg'
-    NFT_MINT_ADDRESS = 'ECAEMLbtyr93YDmiyFeM3j8gz1k1vCKdmFqZoLbSmww3'
-    HELIUS_URL = "https://mainnet.helius-rpc.com/?api-key=529cc9da-e941-4dac-ac8e-f377beff3964"
-
-    # Check if the wallet owns a specific NFT
-    # meow = check_wallet_owns_nft(SOL_WALLET, NFT_MINT_ADDRESS)
-
-    # Get all token accounts associated with the wallet
-    # poo = get_all_token_accounts(SOL_WALLET)
-
-    whoah = get_asset(NFT_MINT_ADDRESS, '1')
-
-    meow = get_assets_images_by_wallet_address(SOL_WALLET)
-
-

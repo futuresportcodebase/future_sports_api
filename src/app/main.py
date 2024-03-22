@@ -1,20 +1,18 @@
 from fastapi import FastAPI
-import uvicorn
-import os
-
-from .api.api_v0.api import router as api_v0_router
+from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from dotenv import load_dotenv
-from fastapi.middleware.cors import CORSMiddleware
+import os
+# Import routers
+from .api.api_v0.api import router as api_v0_router
 
-
+# Load environment variables from .env file
 load_dotenv()
 
-root_path = os.getenv('ENV', default='')
+# Create FastAPI app instance
+app = FastAPI()
 
-app = FastAPI(root_path=f'{root_path}')
-
-
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -22,13 +20,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add or comment out the following lines of code to include a new version of
-# API or deprecate an old version
+
+# Include routers
 app.include_router(api_v0_router, prefix="/api/v0")
 
-# The magic that allows the integration with AWS Lambda
+# Enable Mangum for AWS Lambda integration
 handler = Mangum(app)
 
+#
+# from fastapi import FastAPI
+#
+# app = FastAPI()
+#
+#
+# @app.get("/")
+# def get_root():
+#     return {"message": "FastAPI running in a Docker container"}
 
-if __name__ == "__main__":
-    uvicorn.run(app, port=8000)

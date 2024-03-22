@@ -1,6 +1,14 @@
 from fastapi import APIRouter
 import os
-from .endpoints import items, users
+from .endpoints import items, users, web3
+import requests
+from urllib.parse import urlparse
+import boto3
+from fastapi import HTTPException
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+from .config import *
+from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
@@ -19,13 +27,10 @@ async def root():
 
 router.include_router(items.router)
 router.include_router(users.router)
+router.include_router(web3.router)
 
-import boto3
-from fastapi import HTTPException
-from PIL import Image, ImageDraw, ImageFont
-from io import BytesIO
-from .config import *
-from fastapi.responses import StreamingResponse
+
+
 
 # app = FastAPI()
 
@@ -130,6 +135,14 @@ def upload_to_s3(image_data: bytes, filename: str):
 @router.post("/merge_and_upload")
 async def merge_and_upload(image1_path: str, image2_path: str, text: str = "TEXT"):
     try:
+        # Check if image paths are URLs
+        if image1_path.startswith("http://") or image1_path.startswith("https://"):
+            # Download image from URL and upload to S3
+            image1_path = download_image_to_s3(image1_path)
+        if image2_path.startswith("http://") or image2_path.startswith("https://"):
+            # Download image from URL and upload to S3
+            image2_path = download_image_to_s3(image2_path)
+
         # Merge images
         merged_image_bytes = merge_images(image1_path, image2_path, text)
         # Upload merged image to S3
@@ -141,14 +154,41 @@ async def merge_and_upload(image1_path: str, image2_path: str, text: str = "TEXT
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+def download_image_to_s3(image_url: str):
+    try:
+        # Download image from URL
+        response = requests.get(image_url)
+        response.raise_for_status()
+
+        # Upload image to S3
+        filename = urlparse(image_url).path.split("/")[-1]  # Extract filename from URL
+        s3_object_key = f"images/{filename}"  # Specify S3 object key
+        s3_client.put_object(
+            Bucket="futuresportsimages",
+            Key=s3_object_key,
+            Body=response.content,
+            ContentType=response.headers.get("content-type", "image/png")  # Set content type
+        )
+        return f"s3://futuresportsimages/{s3_object_key}"
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.post("/merge_and_view")
-async def merge_and_upload(image1_path: str = "s3://futuresportsimages/testImages/SMB_monkey-test-PFP.png",
-                           image2_path: str = "s3://futuresportsimages/BallStarsBaseballEditionZero/BallStars-Baseball-Edition-0_EARTH-BOSTON_base_t1.png",
-                           header_text: str = "Header",
-                           text: str = "TEXT"):
+async def merge_and_view(image1_path: str = "s3://futuresportsimages/testImages/SMB_monkey-test-PFP.png",
+                         image2_path: str = "s3://futuresportsimages/BallStarsBaseballEditionZero/BallStars-Baseball-Edition-0_EARTH-BOSTON_base_t1.png",
+                         header_text: str = "Header",
+                         text: str = "TEXT"):
     try:
+        # Check if image paths are S3 URLs
+        if image1_path.startswith("http://") or image1_path.startswith("https://"):
+            # Download image from S3 URL and upload to S3
+            image1_path = download_image_to_s3(image1_path)
+        if image2_path.startswith("http://") or image2_path.startswith("https://"):
+            # Download image from S3 URL and upload to S3
+            image2_path = download_image_to_s3(image2_path)
+
         # Merge images
         merged_image_bytes = merge_images(image1_path, image2_path, header_text=header_text, text=text)
 
@@ -158,5 +198,6 @@ async def merge_and_upload(image1_path: str = "s3://futuresportsimages/testImage
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
