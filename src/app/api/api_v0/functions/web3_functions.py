@@ -137,3 +137,4 @@ def fetch_assets_images_by_wallet_address(wallet_address, interface_filter='V1_N
     for link in image_links:
         print("Image URL:", link)
     return image_links
+

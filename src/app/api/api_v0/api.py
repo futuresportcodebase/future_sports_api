@@ -181,12 +181,12 @@ async def merge_and_view(image1_path: str = "s3://futuresportsimages/testImages/
                          header_text: str = "Header",
                          text: str = "TEXT"):
     try:
-        # Check if image paths are S3 URLs
+        # Check if image paths are URLs
         if image1_path.startswith("http://") or image1_path.startswith("https://"):
-            # Download image from S3 URL and upload to S3
+            # Download image from URL and upload to S3
             image1_path = download_image_to_s3(image1_path)
         if image2_path.startswith("http://") or image2_path.startswith("https://"):
-            # Download image from S3 URL and upload to S3
+            # Download image from URL and upload to S3
             image2_path = download_image_to_s3(image2_path)
 
         # Merge images

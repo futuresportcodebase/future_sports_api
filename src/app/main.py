@@ -4,7 +4,7 @@ from mangum import Mangum
 from dotenv import load_dotenv
 import os
 # Import routers
-from .api.api_v0.api import router as api_v0_router
+from api.api_v0.api import router as api_v0_router
 
 # Load environment variables from .env file
 load_dotenv()
