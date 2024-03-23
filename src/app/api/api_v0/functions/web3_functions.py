@@ -100,6 +100,41 @@ def fetch_assets_by_owner(wallet_address):
     return items
 
 
+def extract_image_links(filtered_assets):
+    """
+    Extracts image links from a list of filtered assets.
+
+    Each asset is expected to have a 'content' key, which can contain either:
+    - A 'files' list, with each file containing a 'uri' key for the image link.
+    - A 'links' dictionary directly containing an 'image' key with the image URL.
+
+    Parameters:
+    - filtered_assets (list): A list of asset dictionaries to extract image links from.
+
+    Returns:
+    - list: A list of unique image URLs extracted from the assets.
+    """
+    image_links = []
+
+    for asset in filtered_assets:
+        # Extracting from the 'files' list if it exists
+        if 'content' in asset and 'files' in asset['content']:
+            files = asset['content']['files']
+            for file in files:
+                if 'uri' in file:  # Check if the 'uri' key exists
+                    uri = file['uri']
+                    if uri not in image_links:  # Avoid duplicates
+                        image_links.append(uri)
+
+        # Alternatively, extracting from a direct 'image' link if it exists
+        elif 'content' in asset and 'links' in asset['content'] and 'image' in asset['content']['links']:
+            image_link = asset['content']['links']['image']
+            if image_link not in image_links:  # Avoid duplicates
+                image_links.append(image_link)
+
+    return image_links
+
+
 def filter_assets_by_interface(wallet_address, interface_filter='V1_NFT'):
     assets = fetch_assets_by_owner(wallet_address)
     filtered_assets = [asset for asset in assets if asset.get('interface') == interface_filter]
@@ -111,30 +146,28 @@ def filter_assets_by_interface(wallet_address, interface_filter='V1_NFT'):
     return filtered_assets
 
 
-def extract_image_links(filtered_assets):
-    image_links = []
-
-    for asset in filtered_assets:
-        # Extracting from the 'files' list if it exists
-        if 'content' in asset and 'files' in asset['content']:
-            files = asset['content']['files']
-            for file in files:
-                if 'uri' in file:  # Check if the 'uri' key exists
-                    image_links.append(file['uri'])
-
-        # Alternatively, extracting from a direct 'image' link if it exists
-        if 'content' in asset and 'links' in asset['content'] and 'image' in asset['content']['links']:
-            image_link = asset['content']['links']['image']
-            if image_link not in image_links:  # Avoid duplicates
-                image_links.append(image_link)
-
-    return image_links
-
-
-def fetch_assets_images_by_wallet_address(wallet_address, interface_filter='V1_NFT'):
+def fetch_filtered_assets_images(wallet_address, interface_filter='V1_NFT'):
+    # Assuming filter_assets_by_interface is a function that filters assets based on the wallet address and interface
     filtered_assets = filter_assets_by_interface(wallet_address, interface_filter)
     image_links = extract_image_links(filtered_assets)
+
+    # Print image URLs for debugging/logging purposes
     for link in image_links:
         print("Image URL:", link)
-    return image_links
+
+    # Returning a dictionary with the interface_filter as the key and the image links as its value
+    return {interface_filter: image_links}
+
+def fetch_all_assets_images(wallet_address):
+    # Retrieves all assets associated with the wallet address
+    all_assets = fetch_assets_by_owner(wallet_address)
+    image_links = extract_image_links(all_assets)
+
+    # Debugging: Print each image URL
+    for link in image_links:
+        print("Image URL:", link)
+
+    # Returns a dictionary containing all image links
+    return {"all_images": image_links}
+
 

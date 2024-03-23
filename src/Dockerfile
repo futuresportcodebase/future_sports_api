@@ -2,6 +2,7 @@
 FROM python:3.9
 RUN pip install --upgrade pip
 
+EXPOSE 80
 #
 WORKDIR /code
 
