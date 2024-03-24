@@ -40,13 +40,13 @@ async def get_wallets_images(wallet_address: str = Query(..., description="Solan
     return image_links
 
 
-@router.get("/mint_compressed_nft")
-async def mint_compressed_nft_endpoint():
-    """
-    Get image links of assets by wallet address filtered by interface.
-    """
-    nft_info = mint_compressed_nft()
-    return {"image_links": nft_info}
+# @router.get("/mint_compressed_nft")
+# async def mint_compressed_nft_endpoint():
+#     """
+#     Get image links of assets by wallet address filtered by interface.
+#     """
+#     nft_info = mint_compressed_nft()
+#     return {"image_links": nft_info}
 
 
 # Example usage
