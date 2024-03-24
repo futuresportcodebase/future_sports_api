@@ -231,6 +231,6 @@ pyrightconfig.json
 
 .env.*!/app/api/api_v0/config.py
 config.py
-!/working.py
+!working.py
 !/config.py
 !config.py
