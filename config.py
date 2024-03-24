@@ -1,9 +1,0 @@
-# AWS S3 configurations
-AWS_ACCESS_KEY_ID = "AKIA5FTZFKQK5GAGA3FK"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_REGION_NAME = "us-east-1"
-AWS_S3_BUCKET_NAME = "futuresportsimages"
-
-
-
-IMGUR_CLIENT_ID = "9781c317db3b0f89a2c9c5a0a4231bc0"
