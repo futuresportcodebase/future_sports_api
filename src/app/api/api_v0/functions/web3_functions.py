@@ -1,4 +1,5 @@
 import json
+from pprint import pprint
 
 import requests
 from ..config import SOLANA_ENDPOINT, SOL_PROGRAM_ID, HELIUS_URL
@@ -100,6 +101,7 @@ def fetch_assets_by_owner(wallet_address):
     return items
 
 
+
 def extract_image_links(filtered_assets):
     """
     Extracts image links from a list of filtered assets.
@@ -135,6 +137,46 @@ def extract_image_links(filtered_assets):
     return image_links
 
 
+def extract_image_links_by_symbol(nft_data):
+    """
+    Extracts image links from a list of NFT metadata and groups them by 'symbol'.
+
+    Parameters:
+    - nft_data (list): A list of dictionaries containing NFT metadata.
+
+    Returns:
+    - dict: A dictionary with 'symbol' as keys and lists of image URLs as values.
+    """
+    grouped_image_links = {}
+
+    for nft in nft_data:
+        # Extract the symbol from the NFT metadata
+        symbol = nft['content'].get('metadata', {}).get('symbol', 'default')
+
+        # Initialize the list for this symbol if it does not exist
+        if symbol not in grouped_image_links:
+            grouped_image_links[symbol] = []
+
+        # Extract image link from 'links' -> 'image'
+        if 'content' in nft and 'links' in nft['content'] and 'image' in nft['content']['links']:
+            image_link = nft['content']['links']['image']
+            if image_link not in grouped_image_links[symbol]:  # Avoid duplicates within the same symbol
+                grouped_image_links[symbol].append(image_link)
+
+        # Alternatively, extract image links from 'files' -> 'uri'
+        elif 'content' in nft and 'files' in nft['content']:
+            files = nft['content']['files']
+            for file in files:
+                if 'uri' in file:  # Check if the 'uri' key exists
+                    uri = file['uri']
+                    if uri not in grouped_image_links[symbol]:  # Avoid duplicates within the same symbol
+                        grouped_image_links[symbol].append(uri)
+
+    return grouped_image_links
+
+
+
+
 def filter_assets_by_interface(wallet_address, interface_filter='V1_NFT'):
     assets = fetch_assets_by_owner(wallet_address)
     filtered_assets = [asset for asset in assets if asset.get('interface') == interface_filter]
@@ -158,16 +200,67 @@ def fetch_filtered_assets_images(wallet_address, interface_filter='V1_NFT'):
     # Returning a dictionary with the interface_filter as the key and the image links as its value
     return {interface_filter: image_links}
 
+
 def fetch_all_assets_images(wallet_address):
     # Retrieves all assets associated with the wallet address
     all_assets = fetch_assets_by_owner(wallet_address)
-    image_links = extract_image_links(all_assets)
+    image_links_grouped = extract_image_links_by_symbol(all_assets)
 
-    # Debugging: Print each image URL
-    for link in image_links:
-        print("Image URL:", link)
+    print(image_links_grouped)
 
-    # Returns a dictionary containing all image links
-    return {"all_images": image_links}
+    # Debugging: Print each image URL, grouped by 'group_value'
+    for group_value, image_links in image_links_grouped.items():
+        print(f"Group: {group_value}")
+        for link in image_links:
+            print("  Image URL:", link)
+
+    # Returns a dictionary containing grouped image links
+    return {"grouped_images": image_links_grouped}
+
+
+
+def mint_compressed_nft(Helius_URL=HELIUS_URL):
+    headers = {
+        'Content-Type': 'application/json',
+    }
+
+    payload = {
+        "jsonrpc": "2.0",
+        "id": "helius-test",
+        "method": "mintCompressedNft",
+        "params": {
+            "name": "TestNFT",
+            "symbol": "TESTNFT",
+            "owner": "EA5VtQJ6qjGqYzg3pTcM3xw9gq12gASTdJs5dundE79D",
+            "description": "The ultimate forbidden monster sealed by magic.",
+            "attributes": [
+                {
+                    "trait_type": "Type",
+                    "value": "Legendary"
+                },
+                {
+                    "trait_type": "Power",
+                    "value": "Infinite"
+                },
+                {
+                    "trait_type": "Element",
+                    "value": "Dark"
+                },
+                {
+                    "trait_type": "Rarity",
+                    "value": "Mythical"
+                }
+            ],
+            "imageUrl": "https://futuresportsimages.s3.amazonaws.com/output/2024-03-23_19-11-00_merged_image.png",
+            "externalUrl": "https://google.com",
+            "sellerFeeBasisPoints": 6900,
+        }
+    }
+
+    response = requests.post(Helius_URL, headers=headers, data=json.dumps(payload))
+    result = response.json()
+    print('Minted asset: ', result['result']['assetId'])
+    return result
+
 
 

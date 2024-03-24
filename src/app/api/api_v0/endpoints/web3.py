@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from ..functions.web3_functions import fetch_assets_by_owner, fetch_filtered_assets_images
+from ..functions.web3_functions import fetch_assets_by_owner, fetch_filtered_assets_images, mint_compressed_nft, fetch_all_assets_images
 router = APIRouter(prefix='/web3', tags=["Web3"])
 
 @router.get("/")
@@ -21,15 +21,32 @@ async def get_all_token_accounts_endpoint(sol_wallet: str = Query(..., descripti
     """
     return fetch_assets_by_owner(sol_wallet)
 
-@router.get("/get_filtered_images")
-async def get_filtered_assets_images(wallet_address: str = Query(..., description="Solana Wallet Address"),
-                            interface_filter: str = Query('V1_NFT', description="Interface Filter")):
+# @router.get("/get_filtered_images")
+# async def get_filtered_assets_images(wallet_address: str = Query(..., description="Solana Wallet Address"),
+#                             interface_filter: str = Query('V1_NFT', description="Interface Filter")):
+#     """
+#     Get image links of assets by wallet address filtered by interface.
+#     """
+#     image_links = fetch_filtered_assets_images(wallet_address, interface_filter)
+#     return {"image_links": image_links}
+
+@router.get("/get_wallet_images")
+async def get_wallets_images(wallet_address: str = Query(..., description="Solana Wallet Address"),
+                            ):
     """
     Get image links of assets by wallet address filtered by interface.
     """
-    image_links = fetch_filtered_assets_images(wallet_address, interface_filter)
-    return {"image_links": image_links}
+    image_links = fetch_all_assets_images(wallet_address)
+    return image_links
 
+
+@router.get("/mint_compressed_nft")
+async def mint_compressed_nft_endpoint():
+    """
+    Get image links of assets by wallet address filtered by interface.
+    """
+    nft_info = mint_compressed_nft()
+    return {"image_links": nft_info}
 
 
 # Example usage

@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 import os
 # Import routers
 from .api.api_v0.api import router as api_v0_router
-
+from .api.api_v0.functions import web3_functions as web3
+from datetime import datetime
 # Load environment variables from .env file
 load_dotenv()
 
@@ -19,6 +20,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 # Include routers
