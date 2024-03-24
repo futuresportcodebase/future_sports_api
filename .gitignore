@@ -233,3 +233,4 @@ pyrightconfig.json
 config.py
 !/working.py
 !/config.py
+!config.py
