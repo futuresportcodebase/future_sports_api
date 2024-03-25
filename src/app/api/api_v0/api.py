@@ -1,5 +1,10 @@
+from typing import Tuple
+
 from fastapi import APIRouter, Query
 import os
+
+from pydantic import BaseModel
+
 from .endpoints import items, users, web3
 import requests
 from urllib.parse import urlparse
@@ -145,8 +150,16 @@ async def merge_and_upload(background: str = Query(
         text_color_tuple = tuple(map(int, text_color.strip("()").split(", ")))
         header_color_tuple = tuple(map(int, header_color.strip("()").split(", ")))
 
+
         # Check if image paths are URLs and handle accordingly
         # Ensure download_image_to_s3 function is implemented to handle this logic
+
+        if pfp.startswith("http://") or pfp.startswith("https://"):
+            # Download image from URL and upload to S3
+            pfp = download_image_to_s3(pfp)
+        if background.startswith("http://") or background.startswith("https://"):
+            # Download image from URL and upload to S3
+            background = download_image_to_s3(background)
 
         # Merge images with additional options
         merged_image_bytes = merge_images(background, pfp, header_text, text,
@@ -185,38 +198,37 @@ def download_image_to_s3(image_url: str, bucket="futuresportsimages"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class MergeImageViewInput(BaseModel):
+    background: str = "https://nftstorage.link/ipfs/bafybeibfnwmpyd73f737jgr256wxr3wv35hlstvvmjyi4tf7ns3zzzeiue"
+    pfp: str = "https://nftstorage.link/ipfs/bafkreigymxzyva7uwtogbwlmxjcwonq2tyihd3fixt3t6y3nqjvkc5xdfa"
+    header_text: str = "Header"
+    text: str = "TEXT"
+    font_path: str = "app/api/api_v0/assets/Minercraftory.ttf"
+    font_size: int = 50
+    header_font_size: int = 50
+    text_color: Tuple[int, int, int] = (250, 221, 177)
+    header_color: Tuple[int, int, int] = (250, 221, 177)
+    text_vertical_position: int = 1100
+    header_vertical_position: int = 140
 
 @router.post("/merge_and_view")
-async def merge_and_view(image1_path: str = Query(
-                            "s3://futuresportsimages/images/bafybeibfnwmpyd73f737jgr256wxr3wv35hlstvvmjyi4tf7ns3zzzeiue"),
-                         image2_path: str = Query(
-                             "s3://futuresportsimages/images/bafkreigymxzyva7uwtogbwlmxjcwonq2tyihd3fixt3t6y3nqjvkc5xdfa"),
-                         header_text: str = Query("Header"),
-                         text: str = Query("TEXT"),
-                         font_path: str = Query("app/api/api_v0/assets/Minercraftory.ttf"),
-                         font_size: int = Query(50),
-                         header_font_size: int = Query(50),
-                         text_color: str = Query("(250, 221, 177)"),  # Expecting RGB tuple as string
-                         header_color: str = Query("(250, 221, 177)"),  # Expecting RGB tuple as string
-                         text_vertical_position: int = Query(1100),
-                         header_vertical_position: int = Query(140)):
+async def merge_and_view(input_data: MergeImageViewInput):
     try:
-        # Convert string tuples to actual tuples for colors
-        text_color_tuple = tuple(map(int, text_color.strip("()").split(", ")))
-        header_color_tuple = tuple(map(int, header_color.strip("()").split(", ")))
-
-        # Check if image paths are URLs and handle accordingly
-        # This logic remains unchanged but ensure it's correctly implemented
+        if input_data.background.startswith("http://") or input_data.background.startswith("https://"):
+            # Download image from URL and upload to S3
+            input_data.background = download_image_to_s3(input_data.background)
+        if input_data.pfp.startswith("http://") or input_data.pfp.startswith("https://"):
+            # Download image from URL and upload to S3
+            input_data.pfp = download_image_to_s3(input_data.pfp)
 
         # Merge images with additional options
-        merged_image_bytes = merge_images(image1_path, image2_path, header_text, text,
-                                          font_path, font_size, header_font_size,
-                                          text_color_tuple, header_color_tuple,
-                                          text_vertical_position, header_vertical_position)
+        merged_image_bytes = merge_images(input_data.background, input_data.pfp,
+                                          input_data.header_text, input_data.text,
+                                          input_data.font_path, input_data.font_size, input_data.header_font_size,
+                                          input_data.text_color, input_data.header_color,
+                                          input_data.text_vertical_position, input_data.header_vertical_position)
 
         # Return the merged image directly as a response
         return StreamingResponse(BytesIO(merged_image_bytes), media_type="image/png")
-    except HTTPException as e:
-        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
