@@ -13,6 +13,7 @@ load_dotenv()
 # Create FastAPI app instance
 app = FastAPI()
 
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,

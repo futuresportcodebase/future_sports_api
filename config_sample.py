@@ -1,8 +1,0 @@
-# AWS S3 configurations
-AWS_ACCESS_KEY_ID = "NULL"
-AWS_SECRET_ACCESS_KEY = "NULL"
-AWS_REGION_NAME = "NULL"
-AWS_S3_BUCKET_NAME = "NULL"
-
-# no longer needed
-IMGUR_CLIENT_ID = "NULL"

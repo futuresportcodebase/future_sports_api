@@ -219,7 +219,26 @@ def fetch_all_assets_images(wallet_address):
 
 
 
-def mint_compressed_nft(Helius_URL=HELIUS_URL):
+def mint_compressed_nft(name: str, symbol: str, owner: str, description: str,
+                        attributes: list, image_url: str, external_url: str,
+                        seller_fee_basis_points: int, helius_url: str):
+    """
+    Mint a compressed NFT using the Helius protocol.
+
+    Args:
+        name (str): The name of the NFT.
+        symbol (str): The symbol of the NFT.
+        owner (str): The owner address of the NFT.
+        description (str): The description of the NFT.
+        attributes (list): List of dictionaries containing NFT attributes.
+        image_url (str): The URL of the image associated with the NFT.
+        external_url (str): The external URL associated with the NFT.
+        seller_fee_basis_points (int): The seller fee basis points.
+        helius_url (str): The URL of the Helius API.
+
+    Returns:
+        dict: The response JSON containing information about the minted NFT.
+    """
     headers = {
         'Content-Type': 'application/json',
     }
@@ -229,38 +248,22 @@ def mint_compressed_nft(Helius_URL=HELIUS_URL):
         "id": "helius-test",
         "method": "mintCompressedNft",
         "params": {
-            "name": "TestNFT",
-            "symbol": "TESTNFT",
-            "owner": "EA5VtQJ6qjGqYzg3pTcM3xw9gq12gASTdJs5dundE79D",
-            "description": "The ultimate forbidden monster sealed by magic.",
-            "attributes": [
-                {
-                    "trait_type": "Type",
-                    "value": "Legendary"
-                },
-                {
-                    "trait_type": "Power",
-                    "value": "Infinite"
-                },
-                {
-                    "trait_type": "Element",
-                    "value": "Dark"
-                },
-                {
-                    "trait_type": "Rarity",
-                    "value": "Mythical"
-                }
-            ],
-            "imageUrl": "https://futuresportsimages.s3.amazonaws.com/output/2024-03-23_19-11-00_merged_image.png",
-            "externalUrl": "https://google.com",
-            "sellerFeeBasisPoints": 6900,
+            "name": name,
+            "symbol": symbol,
+            "owner": owner,
+            "description": description,
+            "attributes": attributes,
+            "imageUrl": image_url,
+            "externalUrl": external_url,
+            "sellerFeeBasisPoints": seller_fee_basis_points,
         }
     }
 
-    response = requests.post(Helius_URL, headers=headers, data=json.dumps(payload))
+    response = requests.post(helius_url, headers=headers, data=json.dumps(payload))
     result = response.json()
     print('Minted asset: ', result['result']['assetId'])
     return result
+
 
 
 

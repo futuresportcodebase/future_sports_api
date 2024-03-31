@@ -7,17 +7,41 @@ from io import BytesIO
 from ..config import *
 
 
-# Initialize AWS S3 client
+
+
+
+# Create an STS client
+sts_client = boto3.client('sts')
+
+# Assume the IAM role to get temporary security credentials
+aws_response = sts_client.assume_role(
+    RoleArn='arn:aws:iam::905418462229:role/s3_access',
+    RoleSessionName='aws_testing'
+)
+
+# Extract temporary credentials
+credentials = aws_response['Credentials']
+access_key_id = credentials['AccessKeyId']
+secret_access_key = credentials['SecretAccessKey']
+session_token = credentials['SessionToken']
+
+# Use the temporary credentials to create a new session
 s3_client = boto3.client(
-    "s3",
-    # Provide your AWS credentials and region
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    region_name=AWS_REGION_NAME
+    's3',
+    aws_access_key_id=access_key_id,
+    aws_secret_access_key=secret_access_key,
+    aws_session_token=session_token
 )
 
 
-def download_image_to_s3(image_url: str, bucket="futuresportsimages"):
+# # Initialize AWS S3 client
+# s3_client = boto3.client(
+#     "s3",
+#     region_name=AWS_REGION_NAME
+# )
+
+
+def download_image_to_s3(image_url: str, bucket=AWS_S3_BUCKET_NAME):
     try:
         # Download image from URL
         response = requests.get(image_url)
@@ -105,7 +129,7 @@ def merge_images_with_text(image, header_text="HEADER", text="TEXT",
     return image
 
 
-def upload_to_s3(image_data: bytes, filename: str, bucket="futuresportsimages"):
+def upload_to_s3(image_data: bytes, filename: str, bucket=AWS_S3_BUCKET_NAME):
     s3_object_key = f"output/{filename}"
     try:
         # Upload the merged image to S3
