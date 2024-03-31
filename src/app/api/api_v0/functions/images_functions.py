@@ -8,8 +8,6 @@ from ..config import *
 
 
 
-
-
 # Create an STS client
 sts_client = boto3.client('sts')
 
@@ -140,7 +138,7 @@ def upload_to_s3(image_data: bytes, filename: str, bucket=AWS_S3_BUCKET_NAME):
             ContentType="image/png"  # Adjust content type as needed
         )
         # Return the URL of the uploaded image
-        s3_object_url = f"https://{bucket}.s3.us-east-1.amazonaws.com/{filename}"
+        s3_object_url = f"https://{bucket}.s3.us-east-1.amazonaws.com/{s3_object_key}"
         return s3_object_url
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

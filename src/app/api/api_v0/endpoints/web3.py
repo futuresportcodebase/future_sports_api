@@ -43,12 +43,12 @@ async def get_wallets_images(wallet_address: str = Query(..., description="Solan
 
 
 @router.post("/mint_compressed_nft")
-async def mint_compressed_nft_endpoint(name: str = "TestNFT", symbol: str = "TESTNFT",
-                                       owner: str = "EA5VtQJ6qjGqYzg3pTcM3xw9gq12gASTdJs5dundE79D",
-                                       description: str = "The ultimate forbidden monster sealed by magic.",
+async def mint_compressed_nft_endpoint(name: str = "APOCALYPTIC_ACROPOLIS", symbol: str = "TESTBKGRD",
+                                       owner: str = "3GgkadRc4rGht3EkUDZwRb4TSuFayKGPyyeCQCap9XLn",
+                                       description: str = "The ultimate Backgrounds",
                                        attributes=None,
-                                       image_url: str = "https://futuresportsimages.s3.amazonaws.com/output/2024-03-23_19-11-00_merged_image.png",
-                                       external_url: str = "https://google.com",
+                                       image_url: str = "https://infinityforgetest.s3.amazonaws.com/cardbackgrounds/BallStars-Baseball-Edition-0_APOCALYPTIC_ACROPOLIS_base_t5.png",
+                                       external_url: str = "https://infinityforgetest.s3.amazonaws.com/cardbackgrounds/BallStars-Baseball-Edition-0_APOCALYPTIC_ACROPOLIS_base_t5.png",
                                        seller_fee_basis_points: int = 6900,
                                        helius_url: str = HELIUS_URL):
     """
@@ -71,8 +71,8 @@ async def mint_compressed_nft_endpoint(name: str = "TestNFT", symbol: str = "TES
     if attributes is None:
         attributes = [
             {"trait_type": "Type", "value": "Legendary"},
-            {"trait_type": "Power", "value": "Infinite"},
-            {"trait_type": "Element", "value": "Dark"},
+            # {"trait_type": "Power", "value": "Infinite"},
+            # {"trait_type": "Element", "value": "Dark"},
             {"trait_type": "Rarity", "value": "Mythical"}
         ]
     try:
