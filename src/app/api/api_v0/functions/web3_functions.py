@@ -1,8 +1,16 @@
 import json
+import os
 from pprint import pprint
-
+from dotenv import load_dotenv
 import requests
-from ..config import SOLANA_ENDPOINT, SOL_PROGRAM_ID, HELIUS_URL
+
+
+load_dotenv()
+
+
+SOLANA_ENDPOINT = os.getenv("SOLANA_ENDPOINT")
+SOL_PROGRAM_ID = os.getenv("SOL_PROGRAM_ID")
+HELIUS_URL = os.getenv("HELIUS_URL")
 
 
 def send_solana_request(payload):

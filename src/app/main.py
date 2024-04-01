@@ -1,18 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Security, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 from dotenv import load_dotenv
 import os
-# Import routers
-from .api.api_v0.api import router as api_v0_router
-from .api.api_v0.functions import web3_functions as web3
 from datetime import datetime
+
 # Load environment variables from .env file
 load_dotenv()
 
 # Create FastAPI app instance
 app = FastAPI()
-
 
 # Add CORS middleware
 app.add_middleware(
@@ -22,21 +18,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Define the expected API key
+API_KEY = os.getenv("API_KEY")
+if API_KEY is None:
+    raise EnvironmentError("API_KEY environment variable not set")
 
 
-# Include routers
-app.include_router(api_v0_router, prefix="/api/v0")
+# Define the api_key_query function to extract API key from query parameters
+async def api_key_query(api_key: str = Query(..., description="API key")):
+    return api_key
 
-# Enable Mangum for AWS Lambda integration
-handler = Mangum(app)
 
-#
-# from fastapi import FastAPI
-#
-# app = FastAPI()
-#
-#
-# @app.get("/")
-# def get_root():
-#     return {"message": "FastAPI running in a Docker container"}
+# API key authentication middleware
+async def api_key_auth(api_key: str = Security(api_key_query, scopes=[])):
+    if api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+
+
+# Import routers after defining the necessary middleware
+from .api.api_v0.api import router as api_v0_router
+
+# Include routers with dependencies for API key authentication
+app.include_router(api_v0_router, prefix="/api/v0", dependencies=[Security(api_key_auth)])
 

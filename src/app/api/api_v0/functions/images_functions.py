@@ -4,9 +4,13 @@ import boto3
 from fastapi import HTTPException
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-from ..config import *
+import os
+# from ..config import *
+from dotenv import load_dotenv
 
+load_dotenv()
 
+AWS_S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME")
 
 # Create an STS client
 sts_client = boto3.client('sts')
